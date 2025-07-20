@@ -53,8 +53,8 @@ def perform_SimpleImp(dataset: pd.DataFrame, imputation_strategy) -> pd.DataFram
 
 def impute_missing(config, dataset):
     imputation_strategy = config['PROCESSING']['imputation_strategy'].lower()
-    logger.info('Missing data will be replaced by -1 values.')
     if imputation_strategy == 'other':
+        logger.info('Missing data will be replaced by -1 values.')
         dataset = perform_imputation_num(dataset, -1)
     else:
         dataset = perform_SimpleImp(dataset, imputation_strategy)
