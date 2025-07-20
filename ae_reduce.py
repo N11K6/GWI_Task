@@ -1,25 +1,26 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-AutoEncoder for dimensionality reduction
+AutoEncoder for missing data synthesis
 
 @author: nk
 """
+import pandas as pd
 import numpy as np
-from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Model, load_model
 from tensorflow.keras.layers import Input, Dense
 from tensorflow.keras.optimizers import Adam
 import logging
 logger = logging.getLogger(__name__)
 
-def prepare_autoencoder(X_scaled: np.ndarray, encoding_dim=2):
+def prepare_autoencoder(X_scaled: np.ndarray, y_scaled: np.ndarray, encoding_dim=2):
     '''
     Build/Train/Save a simple autoencoder (CPU-friendly architecture)
-    Also save the encoder part, to use as an embedding generator.
+    This will be used for synthesizing missing data
     '''
     # 1. Build the autoencoder
     input_dim = X_scaled.shape[1]
+    output_dim = y_scaled.shape[1]
     
     # Smaller architecture for CPU training
     input_layer = Input(shape=(input_dim,))
@@ -29,46 +30,54 @@ def prepare_autoencoder(X_scaled: np.ndarray, encoding_dim=2):
     
     decoder = Dense(32, activation='relu')(encoder)
     decoder = Dense(64, activation='relu')(decoder)
-    decoder = Dense(input_dim, activation='sigmoid')(decoder)
+    decoder = Dense(output_dim, activation='sigmoid')(decoder)
     
     autoencoder = Model(inputs=input_layer, outputs=decoder)
     autoencoder.compile(optimizer=Adam(learning_rate=0.001), loss='mse')
     
     # 2. Train with fewer epochs and larger batch size (better for CPU)
-    logger.info('Training autoencoder for dimensionality reduction.')
-    autoencoder.fit(X_scaled, X_scaled,
-                    epochs=75,  # Reduced from 100
+    logger.info('Training autoencoder for data synthesis.')
+    autoencoder.fit(X_scaled, y_scaled,
+                    epochs=50,  # Reduced from 100
                     batch_size=64,  # Increased from 32
                     shuffle=True,
                     validation_split=0.2,
                     verbose=0)
     # 3. Save the full autoencoder
-    autoencoder.save('autoencoder_for_reduction.keras')
+    autoencoder.save('autoencoder_for_data_synthesis.keras')
+        
+    # 4. Done
     logger.info('Autoencoder ready.')
-
-    # 4. Create and save just the encoder
-    encoder_model = Model(inputs=input_layer, outputs=encoder)
-    encoder_model.save('encoder_for_reduction.keras')
-    logger.info('Encoder ready.')
     
     return 0
 
 def use_encoder(X_scaled):
     # Load the saved encoder
-    loaded_encoder = load_model('encoder_for_reduction.keras')
-    
+    loaded_autoencoder = load_model('autoencoder_for_data_synthesis.keras')
+    logger.info('Using autoencoder for data synthesis.')
     # Use it for dimensionality reduction
-    logger.info('Using encoder for dimensionality reduction.')
-    encoded_data = loaded_encoder.predict(X_scaled)
+    results = loaded_autoencoder.predict(X_scaled)
     
-    return encoded_data
+    return results
 
-def perform_encoding(config, dataset):
-    scaler = MinMaxScaler()
-    data_scaled = scaler.fit_transform(dataset)
-    encoding_dim = int(config['PROCESSING']['encoding_dim'])
-    logger.info(f'Encoding dimension: {encoding_dim}')
-    prepare_autoencoder(data_scaled,encoding_dim)
-    data_reduced = use_encoder(data_scaled)
+def prepare_data(dataset: pd.DataFrame) -> np.ndarray:  
+    dataset_train = dataset.dropna()
+    dataset_missing = dataset[dataset.isna().any(axis=1)]
+    re_cols_lst = [col for col in dataset.columns if 'core_re' in col]
+    dataset_X = dataset_train.drop(re_cols_lst, axis=1)
+    dataset_y = dataset_train[re_cols_lst]    
+    dataset_X_missing = dataset_missing.drop(re_cols_lst, axis=1)
     
-    return data_reduced
+    return dataset_X, dataset_y, dataset_X_missing
+
+def synthesize_data(config, dataset):
+    dataset_X, dataset_y, dataset_X_missing = prepare_data(dataset)
+    prepare_autoencoder(dataset_X, dataset_y, encoding_dim=4)
+    results = use_encoder(dataset_X_missing)
+    dataset_y_synthesized = pd.DataFrame(data = results, columns = dataset_y.columns)
+    logger.info('Missing datapoints filled with synthesized data.')
+    dataset_synthesized = pd.concat([dataset_X_missing.reset_index(drop=True), dataset_y_synthesized], axis=1)
+    dataset_known = dataset.dropna(axis=0)
+    dataset_full = pd.concat([dataset_known,dataset_synthesized]).reset_index(drop=True)
+    
+    return dataset_full
