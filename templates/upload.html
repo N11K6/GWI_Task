@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data File Processor</title>
+</head>
+<body>
+    <h1>Upload Data File and INI Configuration</h1>
+    <form method="post" enctype="multipart/form-data">
+        <div>
+            <label for="data_file">Data File (Excel or CSV):</label>
+            <input type="file" id="data_file" name="data_file" accept=".xls,.xlsx,.csv" required>
+        </div>
+        <div>
+            <label for="ini_file">INI Configuration File:</label>
+            <input type="file" id="ini_file" name="ini_file" accept=".ini" required>
+        </div>
+        <div>
+            <button type="submit">Process Files</button>
+        </div>
+    </form>
+</body>
+</html>
