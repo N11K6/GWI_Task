@@ -98,6 +98,6 @@ def reduce_features(config, dataset):
     else:
         logger.warning(f'Configuration has not specified a valid method for dimensionality reduction.\
               \n Clustering will be attempted with {dataset.shape[1]} features')
-        data_reduced = dataset
+        data_reduced = dataset.to_numpy() # convert to numpy for consistency
     
     return data_reduced
