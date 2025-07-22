@@ -90,6 +90,9 @@ def perform_pca(config, dataset):
     return X_pca
 
 def reduce_features(config, dataset):
+    '''
+    Main process for feature reduction
+    '''
     dataset = perform_varcorrcheck(config, dataset)
     if config['PROCESSING']['dimensionality_reduction'].lower() == 'pca':
         logger.info('Performing dimensionality reduction using PCA')

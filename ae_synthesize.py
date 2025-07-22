@@ -51,7 +51,7 @@ def prepare_autoencoder(X_scaled: np.ndarray, y_scaled: np.ndarray, encoding_dim
     
     return 0
 
-def use_encoder(X_scaled):
+def use_encoder(X_scaled: np.ndarray) -> np.ndarray:
     # Load the saved encoder
     loaded_autoencoder = load_model('autoencoder_for_data_synthesis.keras')
     logger.info('Using autoencoder for data synthesis.')
@@ -70,7 +70,7 @@ def prepare_data(dataset: pd.DataFrame) -> np.ndarray:
     
     return dataset_X, dataset_y, dataset_X_missing
 
-def synthesize_data(config, dataset):
+def synthesize_data(config, dataset: pd.DataFrame) -> pd.DataFrame:
     dataset_X, dataset_y, dataset_X_missing = prepare_data(dataset)
     prepare_autoencoder(dataset_X, dataset_y, encoding_dim=4)
     results = use_encoder(dataset_X_missing)

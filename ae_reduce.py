@@ -53,7 +53,7 @@ def prepare_autoencoder(X_scaled: np.ndarray, encoding_dim=2):
     
     return 0
 
-def use_encoder(X_scaled):
+def use_encoder(X_scaled: np.ndarray) -> np.ndarray:
     # Load the saved encoder
     loaded_encoder = load_model('encoder_for_reduction.keras')
     
@@ -63,7 +63,7 @@ def use_encoder(X_scaled):
     
     return encoded_data
 
-def perform_encoding(config, dataset):
+def perform_encoding(config, dataset) -> np.ndarray:
     scaler = MinMaxScaler()
     data_scaled = scaler.fit_transform(dataset)
     encoding_dim = int(config['PROCESSING']['encoding_dim'])

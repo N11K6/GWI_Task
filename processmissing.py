@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 from ae_synthesize import synthesize_data
 
 def count_missing(dataset: pd.DataFrame) -> int:
+    # Count missing and give an overview of their prevalence in the data
     n_subjects = dataset.shape[0]
     n_features = dataset.shape[1]
     n_total_datapoints = n_subjects*n_features
@@ -59,6 +60,9 @@ def impute_missing(dataset: pd.DataFrame) -> pd.DataFrame:
     return dataset_imputed
 
 def handle_missing(config, dataset: pd.DataFrame) -> pd.DataFrame:
+    '''
+    Main process for handling missing datapoints.
+    '''
     count_missing(dataset)
     missing_strategy = config['PROCESSING']['missing_strategy']
     logger.info(f'Missing data handled through strategy: {missing_strategy}')
