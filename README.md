@@ -12,6 +12,7 @@ Technical Task for Position at GWI
 * clustering.py: Module containing functions for clustering.
 * Testing modules: Unit tests for each module (test_processmissing.py, test_reducefeatures.py, test_clustering.py), and a test for the API implementation (test_appMain.py).
 * ***I have also added debugMain.py - a simple script to run via command line in the same directory, for a simple run of the pipeline. It will generate a temp_dir folder storing the outputs. This is not part of the deployment, just to help the developer with debugging etc.***
+* ***This debugMain.py will also generate heatmaps for the results, as shown in the PP presentation. Please keep in mind this script is not part of the deployed pipeline, and may not be as robust.***
 
 ### Additional Files:
 * dataset.xlsx: The sample dataset that was provided.
