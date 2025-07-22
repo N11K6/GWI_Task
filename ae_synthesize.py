@@ -76,7 +76,7 @@ def synthesize_data(config, dataset):
     results = use_encoder(dataset_X_missing)
     dataset_y_synthesized = pd.DataFrame(data = results, columns = dataset_y.columns)
     logger.info('Missing datapoints filled with synthesized data.')
-    dataset_synthesized = pd.concat([dataset_X_missing.reset_index(drop=True), dataset_y_synthesized], axis=1)
+    dataset_synthesized = pd.concat([dataset_X_missing.reset_index(drop=True), dataset_y_synthesized], axis=1).round()
     dataset_known = dataset.dropna(axis=0)
     dataset_full = pd.concat([dataset_known,dataset_synthesized]).reset_index(drop=True)
     

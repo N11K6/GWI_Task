@@ -27,7 +27,8 @@ def perform_varcorrcheck(config, dataset):
         dataset = dataset.loc[:,dataset.var()>variance_threshold]
         dataset.var().to_csv(os.path.join(output_dir, 'dataset_variance.csv'),index=False)
         logger.info(f'{num_features_before-dataset.shape[1]} features dropped due to low variance.')
-    
+        logger.info(f'{dataset.shape[1]} features remain.')
+
     # Correlation check
     if int(config['PROCESSING']['correlation_check']) == 1:
         correlation_threshold = float(config['PROCESSING']['correlation_threshold'])
@@ -43,6 +44,7 @@ def perform_varcorrcheck(config, dataset):
                     high_corr.add(colname)
         dataset = dataset.drop(columns=high_corr)    
         logger.info(f'{num_features_before-dataset.shape[1]} features dropped due to high correlation.')
+        logger.info(f'{dataset.shape[1]} features remain.')
 
     return dataset
 

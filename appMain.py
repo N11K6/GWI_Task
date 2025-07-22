@@ -70,9 +70,10 @@ def index():
         data_file = request.files['data_file']
         ini_file = request.files['ini_file']
         
-        if data_file.filename == '' or ini_file.filename == '':
+        # Combined empty file check
+        if not data_file.filename or not ini_file.filename:
             return "No selected files", 400
-            
+                    
         # Get the filenames as strings for extension checking
         data_filename = data_file.filename.lower()
         ini_filename = ini_file.filename.lower()

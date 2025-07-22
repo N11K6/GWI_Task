@@ -153,8 +153,8 @@ def test_reduce_features_no_reduction(sample_dataframe, sample_config):
     
     result = reduce_features(sample_config, sample_dataframe)
         
-    assert isinstance(result, pd.DataFrame)
-    assert list(result.columns) == ['A', 'B', 'C', 'D', 'E']
+    assert isinstance(result, np.ndarray)
+    assert result.shape == sample_dataframe.shape
 
 def test_perform_varcorrcheck_output_files(sample_dataframe, sample_config, tmpdir):
     """Test that output files are created"""

@@ -24,9 +24,11 @@ def count_missing(dataset: pd.DataFrame) -> int:
     nan_count = dataset.isna().sum().sum()
     logger.info(f'{nan_count} NaN datapoints out of {n_total_datapoints} in total.\
           ({np.round(100*nan_count/n_total_datapoints)}%)')
+          
     return nan_count
 
 def ignore_missing(dataset: pd.DataFrame) -> pd.DataFrame:
+    logger.info('Eliminating all features with missing datapoints.')
     # Ignore missing values
     missing_cols = []
     for col in dataset.columns:
@@ -37,13 +39,18 @@ def ignore_missing(dataset: pd.DataFrame) -> pd.DataFrame:
     
     return dataset
 
-def perform_imputation_num(dataset: pd.DataFrame, fill_value: int) -> pd.DataFrame:
-    dataset_imputed = dataset.fillna(fill_value)
-    return dataset_imputed
+def add_col_missing(dataset: pd.DataFrame) -> pd.DataFrame:
+    logger.info('Imputing extra column for missing datapoints.')
+    for col in dataset.columns:
+        missing_mask = dataset[col].isna()
+        if missing_mask.any():
+            dataset[col+'_imp'] = np.where(dataset[col].isnull(),1,0)
+    dataset.fillna(0,inplace=True)
+    return dataset
 
-def perform_SimpleImp(dataset: pd.DataFrame, imputation_strategy) -> pd.DataFrame:
-    logger.info(f'Imputing {imputation_strategy} value for missing datapoints.')
-    simple_imputer = SimpleImputer(missing_values=np.nan, strategy=imputation_strategy)
+def impute_missing(dataset: pd.DataFrame) -> pd.DataFrame:
+    logger.info('Imputing most frequent value for missing datapoints.')
+    simple_imputer = SimpleImputer(missing_values=np.nan, strategy='most_frequent')
     dataset_imputed = pd.DataFrame(
         simple_imputer.fit_transform(dataset),
         columns=dataset.columns,
@@ -51,22 +58,16 @@ def perform_SimpleImp(dataset: pd.DataFrame, imputation_strategy) -> pd.DataFram
         )
     return dataset_imputed
 
-def impute_missing(config, dataset):
-    imputation_strategy = config['PROCESSING']['imputation_strategy'].lower()
-    if imputation_strategy == 'other':
-        logger.info('Missing data will be replaced by -1 values.')
-        dataset = perform_imputation_num(dataset, -1)
-    else:
-        dataset = perform_SimpleImp(dataset, imputation_strategy)
-    return dataset
-
-def handle_missing(config, dataset):
+def handle_missing(config, dataset: pd.DataFrame) -> pd.DataFrame:
+    count_missing(dataset)
     missing_strategy = config['PROCESSING']['missing_strategy']
     logger.info(f'Missing data handled through strategy: {missing_strategy}')
     if missing_strategy == 'ignore':
         dataset = ignore_missing(dataset)
+    elif missing_strategy == 'add':
+        dataset = add_col_missing(dataset)
     elif missing_strategy == 'impute':
-        dataset = impute_missing(config,dataset)
+        dataset = impute_missing(dataset)
     elif missing_strategy == 'synthesize':
         dataset = synthesize_data(config, dataset)
     else:
