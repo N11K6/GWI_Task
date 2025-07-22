@@ -24,12 +24,12 @@ def prepare_autoencoder(X_scaled: np.ndarray, y_scaled: np.ndarray, encoding_dim
     
     # Smaller architecture for CPU training
     input_layer = Input(shape=(input_dim,))
-    encoder = Dense(64, activation='relu')(input_layer)
-    encoder = Dense(32, activation='relu')(encoder)
+    encoder = Dense(16, activation='relu')(input_layer)
+    encoder = Dense(8, activation='relu')(encoder)
     encoder = Dense(encoding_dim, activation='relu')(encoder)  # Bottleneck
     
-    decoder = Dense(32, activation='relu')(encoder)
-    decoder = Dense(64, activation='relu')(decoder)
+    decoder = Dense(8, activation='relu')(encoder)
+    decoder = Dense(16, activation='relu')(decoder)
     decoder = Dense(output_dim, activation='sigmoid')(decoder)
     
     autoencoder = Model(inputs=input_layer, outputs=decoder)
