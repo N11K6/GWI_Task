@@ -11,6 +11,7 @@ Technical Task for Position at GWI
 * ae_reduce.py: Sub-module called by reducefeatures,.py for dimensionality reduction using an Autoencoder.
 * clustering.py: Module containing functions for clustering.
 * Testing modules: Unit tests for each module (test_processmissing.py, test_reducefeatures.py, test_clustering.py), and a test for the API implementation (test_appMain.py).
+* ***I have also added debugMain.py - a simple script to run via command line in the same directory, for a simple run of the pipeline. It will generate a temp_dir folder storing the outputs. This is not part of the deployment, just to help the developer with debugging etc.***
 
 ### Additional Files:
 * dataset.xlsx: The sample dataset that was provided.
